@@ -19,15 +19,69 @@ def get_listings(
     skip: int = 0,
     limit: int = 100,
     listing_type: Optional[str] = None,
-    user_id: Optional[int] = None
+    user_id: Optional[int] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    min_rooms: Optional[int] = None,
+    max_rooms: Optional[int] = None,
+    min_bathrooms: Optional[int] = None,
+    max_bathrooms: Optional[int] = None,
+    max_distance: Optional[int] = None,
+    furnished: Optional[bool] = None,
+    gym_in_building: Optional[bool] = None,
+    laundry_in_unit: Optional[bool] = None,
+    laundry_in_building: Optional[bool] = None
 ) -> List[Listing]:
     query = db.query(Listing).options(joinedload(Listing.user))
     
+    # Basic filters
     if listing_type:
         query = query.filter(Listing.listing_type == listing_type)
     
     if user_id:
         query = query.filter(Listing.user_id == user_id)
+    
+    # Price filters - check both unit_price and price_per_room
+    if min_price is not None:
+        query = query.filter(
+            (Listing.unit_price >= min_price) | (Listing.price_per_room >= min_price)
+        )
+    
+    if max_price is not None:
+        query = query.filter(
+            (Listing.unit_price <= max_price) | (Listing.price_per_room <= max_price)
+        )
+    
+    # Room filters
+    if min_rooms is not None:
+        query = query.filter(Listing.num_rooms_available >= min_rooms)
+    
+    if max_rooms is not None:
+        query = query.filter(Listing.num_rooms_available <= max_rooms)
+    
+    # Bathroom filters
+    if min_bathrooms is not None:
+        query = query.filter(Listing.num_bathrooms >= min_bathrooms)
+    
+    if max_bathrooms is not None:
+        query = query.filter(Listing.num_bathrooms <= max_bathrooms)
+    
+    # Distance filter
+    if max_distance is not None:
+        query = query.filter(Listing.distance_to_university <= max_distance)
+    
+    # Amenity filters
+    if furnished is not None:
+        query = query.filter(Listing.furnished == furnished)
+    
+    if gym_in_building is not None:
+        query = query.filter(Listing.gym_in_building == gym_in_building)
+    
+    if laundry_in_unit is not None:
+        query = query.filter(Listing.laundry_in_unit == laundry_in_unit)
+    
+    if laundry_in_building is not None:
+        query = query.filter(Listing.laundry_in_building == laundry_in_building)
     
     return query.offset(skip).limit(limit).all()
 

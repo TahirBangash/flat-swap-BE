@@ -35,10 +35,32 @@ async def get_listings(
     limit: int = 100,
     listing_type: Optional[str] = None,
     user_id: Optional[int] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    min_rooms: Optional[int] = None,
+    max_rooms: Optional[int] = None,
+    min_bathrooms: Optional[int] = None,
+    max_bathrooms: Optional[int] = None,
+    max_distance: Optional[int] = None,
+    furnished: Optional[bool] = None,
+    gym_in_building: Optional[bool] = None,
+    laundry_in_unit: Optional[bool] = None,
+    laundry_in_building: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     """
-    Get all listings (public endpoint - no authentication required)
+    Get all listings with optional filters (public endpoint - no authentication required)
+    
+    Filters:
+    - listing_type: 'unit' or 'room'
+    - min_price/max_price: Price range (per room for room listings, total for unit listings)
+    - min_rooms/max_rooms: Number of available rooms
+    - min_bathrooms/max_bathrooms: Number of bathrooms
+    - max_distance: Maximum distance to university (in kilometers)
+    - furnished: Only furnished listings
+    - gym_in_building: Has gym in building
+    - laundry_in_unit: Has laundry in unit
+    - laundry_in_building: Has laundry in building
     """
     if listing_type and listing_type not in ["unit", "room"]:
         raise HTTPException(
@@ -51,7 +73,18 @@ async def get_listings(
         skip=skip,
         limit=limit,
         listing_type=listing_type,
-        user_id=user_id
+        user_id=user_id,
+        min_price=min_price,
+        max_price=max_price,
+        min_rooms=min_rooms,
+        max_rooms=max_rooms,
+        min_bathrooms=min_bathrooms,
+        max_bathrooms=max_bathrooms,
+        max_distance=max_distance,
+        furnished=furnished,
+        gym_in_building=gym_in_building,
+        laundry_in_unit=laundry_in_unit,
+        laundry_in_building=laundry_in_building
     )
     return listings
 
